@@ -405,7 +405,7 @@
 
     .modal-close { background: #f0f0f0; color: #333; }
     .modal-save { background: var(--accent); color: white; }
-    .modal-save:disabled {
+    .modal-save:disabled, .modal-close:disabled {
       opacity: 0.7;
       cursor: not-allowed;
     }
@@ -552,6 +552,34 @@
     </div>
   </div>
 
+  <!-- Выполнение задания -->
+  <div class="overlay" id="completeOverlay">
+    <div class="modal">
+      <div class="modal-title">Кто выполнил задание?</div>
+      <div class="form-group">
+        <select id="completePerson">
+          <option value="Давид">Давид</option>
+          <option value="Аня">Аня</option>
+          <option value="Андраник">Андраник</option>
+          <option value="Люсинэ">Люсинэ</option>
+          <option value="Другой">Другой</option>
+        </select>
+      </div>
+      <button class="modal-save" id="completeConfirm">Подтвердить</button>
+      <button class="modal-close" id="completeCancel">Отмена</button>
+    </div>
+  </div>
+
+  <!-- Возврат задания -->
+  <div class="overlay" id="restoreOverlay">
+    <div class="modal">
+      <div class="modal-title">Вернуть задание?</div>
+      <div class="modal-body">Ты уверен, что хочешь сделать задание снова активным?</div>
+      <button class="modal-save" id="restoreConfirm">Да, сделать активным</button>
+      <button class="modal-close" id="restoreCancel">Отмена</button>
+    </div>
+  </div>
+
   <div class="status" id="status"></div>
 
   <script>
@@ -568,6 +596,7 @@
     const EMAILJS_PUBLIC_KEY = "mWgMLBD4eFHmg5jUe";
     const EMAILJS_SERVICE_ID = "service_n4yi0ae";
     const EMAILJS_TEMPLATE_ID = "template_5j0jf3r";
+    const EMAILJS_TEMPLATE_DONE_ID = "template_nwiado5";
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -580,6 +609,10 @@
     let currentPhoto = null;
     let isSaving = false;
     let isDataLoaded = false;
+    
+    // Флаги состояния для защиты от повторных нажатий
+    let isCompleting = false;
+    let isRestoring = false;
 
     const listEl = document.getElementById('list');
     const tabs = document.querySelectorAll('.tab');
@@ -643,7 +676,6 @@
           iconHtml = `<img src="${item.photo}" alt="">`;
         }
 
-        // Кнопки в одну линию
         const doneButton = item.done
           ? `<button class="action-btn undone-btn" title="Вернуть">↩</button>`
           : `<button class="action-btn done-btn" title="Выполнено">✓</button>`;
@@ -652,7 +684,7 @@
           <div class="item-icon">${iconHtml}</div>
           <div class="item-text">
             <div class="item-title">${item.title}</div>
-            <div class="item-creator">${item.creator ? 'Добавил: ' + item.creator : ''}</div>
+            <div class="item-creator">${item.creator ? 'Добавил: ' + item.creator : ''}${item.done && item.completedBy ? '<br>Выполнил: ' + item.completedBy : ''}</div>
           </div>
           <div class="item-actions">
             ${doneButton}
@@ -666,14 +698,17 @@
           openView(item);
         });
 
-        // Выполнено / Не выполнено
         const toggleBtn = el.querySelector('.done-btn, .undone-btn');
         if (toggleBtn) {
           toggleBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
-            item.done = !item.done;
-            await db.ref('needs').set(data);
-            showStatus(item.done ? 'Выполнено' : 'Вернули в список');
+            if (!item.done) {
+              window.completeItem = item;
+              document.getElementById('completeOverlay').classList.add('open');
+            } else {
+              window.restoreItem = item;
+              document.getElementById('restoreOverlay').classList.add('open');
+            }
           });
         }
 
@@ -692,6 +727,104 @@
         listEl.appendChild(el);
       });
     }
+
+    document.getElementById('completeCancel').onclick = () => {
+      if (isCompleting) return;
+      document.getElementById('completeOverlay').classList.remove('open');
+      window.completeItem = null;
+    };
+
+    document.getElementById('completeConfirm').onclick = async () => {
+      if (isCompleting) return;
+      
+      const item = window.completeItem;
+      if (!item) return;
+
+      const confirmBtn = document.getElementById('completeConfirm');
+      const cancelBtn = document.getElementById('completeCancel');
+
+      // Блокируем кнопки и показываем загрузку
+      isCompleting = true;
+      confirmBtn.disabled = true;
+      cancelBtn.disabled = true;
+      confirmBtn.textContent = 'Сохранение...';
+
+      const person = document.getElementById('completePerson').value;
+      item.done = true;
+      item.completedBy = person;
+      item.completedAt = Date.now();
+
+      try {
+        await db.ref('needs').set(data);
+
+        try {
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_DONE_ID, {
+            to_email: 'shapalax@gmail.com',
+            title: item.title,
+            detail: item.detail || '—',
+            completed_by: person,
+            date: new Date().toLocaleString('ru-RU')
+          });
+          showStatus('Выполнено + письмо отправлено');
+        } catch(e) {
+          console.error(e);
+          showStatus('Выполнено (письмо не ушло)');
+        }
+
+        document.getElementById('completeOverlay').classList.remove('open');
+        renderList();
+      } catch (err) {
+        console.error(err);
+        showStatus('Ошибка при выполнении');
+      } finally {
+        isCompleting = false;
+        confirmBtn.disabled = false;
+        cancelBtn.disabled = false;
+        confirmBtn.textContent = 'Подтвердить';
+        window.completeItem = null;
+      }
+    };
+
+    document.getElementById('restoreCancel').onclick = () => {
+      if (isRestoring) return;
+      document.getElementById('restoreOverlay').classList.remove('open');
+      window.restoreItem = null;
+    };
+
+    document.getElementById('restoreConfirm').onclick = async () => {
+      if (isRestoring) return;
+
+      const item = window.restoreItem;
+      if (!item) return;
+
+      const confirmBtn = document.getElementById('restoreConfirm');
+      const cancelBtn = document.getElementById('restoreCancel');
+
+      // Блокируем кнопки и показываем задержку
+      isRestoring = true;
+      confirmBtn.disabled = true;
+      cancelBtn.disabled = true;
+      confirmBtn.textContent = 'Возврат...';
+
+      item.done = false;
+      item.completedBy = null;
+
+      try {
+        await db.ref('needs').set(data);
+        document.getElementById('restoreOverlay').classList.remove('open');
+        renderList();
+        showStatus('Задание снова активно');
+      } catch (err) {
+        console.error(err);
+        showStatus('Ошибка при возврате');
+      } finally {
+        isRestoring = false;
+        confirmBtn.disabled = false;
+        cancelBtn.disabled = false;
+        confirmBtn.textContent = 'Да, сделать активным';
+        window.restoreItem = null;
+      }
+    };
 
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
@@ -932,6 +1065,7 @@
     document.querySelectorAll('.overlay').forEach(ov => {
       ov.addEventListener('click', e => {
         if (e.target === ov) {
+          if (isCompleting || isRestoring || isSaving) return;
           ov.classList.remove('open');
           editingItem = null;
           resetPhotoUI();
