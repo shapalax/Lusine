@@ -1,15 +1,18 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<meta charset="UTF-8">
+
 <link rel="icon" type="image/png" id="favicon" href="lusine-circle.png">
 <link rel="shortcut icon" type="image/png" id="favicon-shortcut" href="lusine-circle.png">
 <link rel="apple-touch-icon" id="apple-icon" href="lusine-circle.png">
 <link rel="apple-touch-icon" sizes="180x180" id="apple-icon-180" href="lusine-circle.png">
 
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <title id="pageTitle">Lusine — Нужды</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -34,27 +37,32 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html {
   min-height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text);
   overflow-x: hidden;
 }
 
 body {
+  width: 100%;
   max-width: 428px;
   margin: 0 auto;
   min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(180deg, #fdf8f4 0%, #f5ebe4 100%);
 }
 
-/* Верхняя панель — исправлено для Safari */
+/* Верхняя панель с учётом безопасной зоны iPhone */
 .family-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 28px 16px 0;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 0;
 }
 
 .family-switcher {
@@ -67,16 +75,16 @@ body {
 .family-tab {
   flex: 1;
   min-width: 0;
-  padding: 12px 6px;
+  min-height: 44px;
+  padding: 12px 5px;
   border-radius: 14px;
   background: #ffffff;
-  border: 1.5px solid #e5d8d0;
+  border: 1px solid #e5d8d0;
   font-size: 11px;
   font-weight: 700;
   color: var(--muted);
   cursor: pointer;
   text-align: center;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -84,13 +92,15 @@ body {
   appearance: none;
   opacity: 1;
   filter: none;
+  box-shadow: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .family-tab.active {
   background: var(--accent);
   color: #ffffff;
   border-color: var(--accent);
-  box-shadow: 0 3px 10px rgba(224, 122, 95, 0.25);
+  box-shadow: 0 2px 6px rgba(224, 122, 95, 0.18);
 }
 
 .add-btn-inline {
@@ -107,19 +117,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 10px rgba(224, 122, 95, 0.3);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px rgba(224, 122, 95, 0.25);
   line-height: 1;
   -webkit-appearance: none;
   appearance: none;
   opacity: 1;
   filter: none;
-  animation: none;
+  transition: background-color 0.15s ease;
 }
 
 .add-btn-inline:active {
-  transform: scale(0.95);
-  box-shadow: 0 2px 6px rgba(224, 122, 95, 0.2);
+  opacity: 0.85;
 }
 
 .header {
@@ -146,7 +154,10 @@ body {
   display: block;
 }
 
-.header-text { flex: 1; min-width: 0; }
+.header-text {
+  flex: 1;
+  min-width: 0;
+}
 
 .name {
   font-size: 20px;
@@ -181,9 +192,12 @@ body {
   padding: 8px 16px 16px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
-.tabs::-webkit-scrollbar { display: none; }
+.tabs::-webkit-scrollbar {
+  display: none;
+}
 
 .tab {
   flex-shrink: 0;
@@ -226,7 +240,9 @@ body {
   animation: fadeIn 0.25s ease;
 }
 
-.item.done { opacity: 0.55; }
+.item.done {
+  opacity: 0.55;
+}
 
 .item.done .item-title {
   text-decoration: line-through;
@@ -234,11 +250,19 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.item:active { transform: scale(0.98); }
+.item:active {
+  opacity: 0.9;
+}
 
 .item-icon {
   width: 52px;
@@ -259,9 +283,21 @@ body {
   object-fit: cover;
 }
 
-.item-text { flex: 1; min-width: 0; }
-.item-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
-.item-creator { font-size: 12px; color: #aaa; }
+.item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.item-creator {
+  font-size: 12px;
+  color: #aaa;
+}
 
 .item-actions {
   display: flex;
@@ -279,12 +315,30 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-.done-btn { background: #e8f8ef; color: #27ae60; }
-.undone-btn { background: #fff5e6; color: #e67e22; }
-.edit-btn { background: #f0f4ff; color: #3b82f6; }
-.delete-btn { background: #fff0f0; color: #e74c3c; font-size: 17px; }
+.done-btn {
+  background: #e8f8ef;
+  color: #27ae60;
+}
+
+.undone-btn {
+  background: #fff5e6;
+  color: #e67e22;
+}
+
+.edit-btn {
+  background: #f0f4ff;
+  color: #3b82f6;
+}
+
+.delete-btn {
+  background: #fff0f0;
+  color: #e74c3c;
+  font-size: 17px;
+}
 
 .empty, .loading {
   text-align: center;
@@ -310,7 +364,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .overlay {
@@ -329,7 +385,10 @@ body {
   margin: 0 auto;
 }
 
-.overlay.open { opacity: 1; visibility: visible; }
+.overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
 
 .modal {
   background: white;
@@ -338,16 +397,29 @@ body {
   width: 100%;
   max-width: 400px;
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   transform: translateY(40px);
   transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   -webkit-overflow-scrolling: touch;
 }
 
-.overlay.open .modal { transform: translateY(0); }
+.overlay.open .modal {
+  transform: translateY(0);
+}
 
-.modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
-.modal-body { font-size: 15px; color: var(--muted); line-height: 1.5; margin-bottom: 20px; }
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.modal-body {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
 
 .modal-icon {
   width: 64px;
@@ -368,7 +440,9 @@ body {
   object-fit: cover;
 }
 
-.form-group { margin-bottom: 14px; }
+.form-group {
+  margin-bottom: 14px;
+}
 
 .form-group label {
   display: block;
@@ -378,8 +452,14 @@ body {
   margin-bottom: 6px;
 }
 
-.form-group label .req { color: #e74c3c; }
-.form-group label .opt { color: #aaa; font-weight: 400; }
+.form-group label .req {
+  color: #e74c3c;
+}
+
+.form-group label .opt {
+  color: #aaa;
+  font-weight: 400;
+}
 
 .form-group input,
 .form-group select,
@@ -394,7 +474,10 @@ body {
   outline: none;
 }
 
-.form-group textarea { height: 80px; resize: none; }
+.form-group textarea {
+  height: 80px;
+  resize: none;
+}
 
 .photo-preview {
   width: 100%;
@@ -405,7 +488,9 @@ body {
   display: none;
 }
 
-.photo-preview.show { display: block; }
+.photo-preview.show {
+  display: block;
+}
 
 .photo-actions {
   display: flex;
@@ -423,9 +508,20 @@ body {
   cursor: pointer;
 }
 
-.photo-select { background: #f0f4ff; color: #3b82f6; }
-.photo-remove { background: #fff0f0; color: #e74c3c; display: none; }
-.photo-remove.show { display: block; }
+.photo-select {
+  background: #f0f4ff;
+  color: #3b82f6;
+}
+
+.photo-remove {
+  background: #fff0f0;
+  color: #e74c3c;
+  display: none;
+}
+
+.photo-remove.show {
+  display: block;
+}
 
 .modal-close, .modal-save {
   display: block;
@@ -439,21 +535,38 @@ body {
   margin-top: 10px;
 }
 
-.modal-close { background: #f0f0f0; color: #333; }
-.modal-save { background: var(--accent); color: white; }
+.modal-close {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.modal-save {
+  background: var(--accent);
+  color: white;
+}
 
 .modal-save:disabled, .modal-close:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-.btn-row { display: flex; gap: 10px; }
-.btn-row button { flex: 1; }
-.btn-danger { background: #e74c3c !important; color: white !important; }
+.btn-row {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-row button {
+  flex: 1;
+}
+
+.btn-danger {
+  background: #e74c3c !important;
+  color: white !important;
+}
 
 .status {
   position: fixed;
-  bottom: 30px;
+  bottom: calc(30px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   background: #333;
@@ -465,28 +578,62 @@ body {
   transition: opacity 0.3s ease;
   z-index: 200;
   pointer-events: none;
+  max-width: calc(100% - 32px);
+  white-space: nowrap;
 }
 
-.status.show { opacity: 1; }
+.status.show {
+  opacity: 1;
+}
 
-/* Безопасные отступы iPhone */
-@supports (padding: max(0px)) {
+/* Безопасная зона iPhone */
+@supports (padding: env(safe-area-inset-top)) {
+  .family-bar {
+    padding-top: calc(env(safe-area-inset-top) + 12px);
+  }
+
   .list {
-    padding-bottom: max(40px, env(safe-area-inset-bottom) + 24px);
+    padding-bottom: calc(40px + env(safe-area-inset-bottom));
   }
 
   .overlay {
-    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
   }
 }
 
-/* Дополнительная чёткость кнопок в Safari */
-.family-tab,
-.add-btn-inline {
-  -webkit-filter: none;
-  filter: none;
-  text-shadow: none;
-  -webkit-font-smoothing: antialiased;
+/* На узких экранах */
+@media (max-width: 360px) {
+  .family-bar {
+    gap: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .family-switcher {
+    gap: 4px;
+  }
+
+  .family-tab {
+    font-size: 10px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .add-btn-inline {
+    width: 42px;
+    height: 42px;
+  }
+
+  .header {
+    gap: 12px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .photo-wrap {
+    width: 84px;
+    height: 84px;
+  }
 }
 </style>
 </head>
@@ -496,8 +643,8 @@ body {
 <div class="family-bar">
   <div class="family-switcher">
     <div class="family-tab active" data-family="lusine">Lusine</div>
-    <div class="family-tab" data-family="david_anna">David & Anna</div>
-    <div class="family-tab" data-family="andranik_katya">Andranik & Katya</div>
+    <div class="family-tab" data-family="david_anna">David &amp; Anna</div>
+    <div class="family-tab" data-family="andranik_katya">Andranik &amp; Katya</div>
   </div>
   <button class="add-btn-inline" id="addBtn" title="Добавить запись">+</button>
 </div>
@@ -550,8 +697,8 @@ body {
       <select id="editFamily">
         <option value="">— Выберите семью —</option>
         <option value="lusine">Lusine</option>
-        <option value="david_anna">David & Anna</option>
-        <option value="andranik_katya">Andranik & Katya</option>
+        <option value="david_anna">David &amp; Anna</option>
+        <option value="andranik_katya">Andranik &amp; Katya</option>
       </select>
     </div>
 
@@ -684,7 +831,13 @@ const EMAILJS_CONFIG = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const emptyStructure = () => ({ home: [], docs: [], car: [], health: [], work: [] });
+const emptyStructure = () => ({
+  home: [],
+  docs: [],
+  car: [],
+  health: [],
+  work: []
+});
 
 let familiesData = {
   lusine: emptyStructure(),
@@ -719,42 +872,62 @@ function showStatus(text) {
 
 function sanitizeFamilyData(raw) {
   const res = emptyStructure();
+
   if (raw && typeof raw === 'object') {
     ['home', 'docs', 'car', 'health', 'work'].forEach(cat => {
       if (raw[cat]) {
-        const items = Array.isArray(raw[cat]) ? raw[cat] : Object.values(raw[cat]);
-        res[cat] = items.filter(i => i && typeof i === 'object' && i.id);
+        const items = Array.isArray(raw[cat])
+          ? raw[cat]
+          : Object.values(raw[cat]);
+
+        res[cat] = items.filter(i =>
+          i && typeof i === 'object' && i.id
+        );
       }
     });
   }
+
   return res;
 }
 
 function categoryToObject(arr) {
   const obj = {};
+
   if (Array.isArray(arr)) {
     arr.forEach(item => {
-      if (item && item.id) obj[item.id] = item;
+      if (item && item.id) {
+        obj[item.id] = item;
+      }
     });
   }
+
   return obj;
 }
 
 function ensureCategoryArray(family, cat) {
-  if (!familiesData[family]) familiesData[family] = emptyStructure();
-  if (!familiesData[family][cat] || !Array.isArray(familiesData[family][cat])) {
+  if (!familiesData[family]) {
+    familiesData[family] = emptyStructure();
+  }
+
+  if (!familiesData[family][cat] ||
+      !Array.isArray(familiesData[family][cat])) {
     const raw = familiesData[family][cat];
+
     familiesData[family][cat] = raw
-      ? (Array.isArray(raw) ? raw : Object.values(raw)).filter(i => i && typeof i === 'object' && i.id)
+      ? (Array.isArray(raw) ? raw : Object.values(raw))
+          .filter(i => i && typeof i === 'object' && i.id)
       : [];
   }
+
   return familiesData[family][cat];
 }
 
 db.ref().on('value', (snapshot) => {
   const val = snapshot.val() || {};
 
-  let lusineVal = val.needs_lusine || (val.needs && typeof val.needs === 'object' ? val.needs : {});
+  let lusineVal = val.needs_lusine ||
+    (val.needs && typeof val.needs === 'object' ? val.needs : {});
+
   let davidVal = val.needs_david_anna || {};
   let andranikVal = val.needs_andranik_katya || {};
 
@@ -764,6 +937,7 @@ db.ref().on('value', (snapshot) => {
 
   isDataLoaded = true;
   renderList();
+
 }, (error) => {
   console.error("Firebase error:", error);
   isDataLoaded = true;
@@ -771,9 +945,12 @@ db.ref().on('value', (snapshot) => {
 });
 
 async function saveFamilyData(family) {
-  if (!familiesData[family]) familiesData[family] = emptyStructure();
+  if (!familiesData[family]) {
+    familiesData[family] = emptyStructure();
+  }
 
   const payload = {};
+
   ['home', 'docs', 'car', 'health', 'work'].forEach(cat => {
     ensureCategoryArray(family, cat);
     payload[cat] = categoryToObject(familiesData[family][cat]);
@@ -803,27 +980,34 @@ function updateHeaderView() {
   if (currentFamily === 'lusine') {
     nameEl.textContent = 'Lusine';
     subtitleEl.textContent = 'Список текущих нужд';
-    contactEl.innerHTML = `<div>📍 200 voie de Julia, Le Cannet</div><a href="tel:+33768698812">📞 +33 7 68 69 88 12</a>`;
+    contactEl.innerHTML =
+      `<div>📍 200 voie de Julia, Le Cannet</div>
+       <a href="tel:+33768698812">📞 +33 7 68 69 88 12</a>`;
+
     photoEl.src = 'lusine-circle.png';
     pageTitleEl.textContent = 'Lusine — Нужды';
     faviconEl.href = 'lusine-circle.png';
     faviconShortcutEl.href = 'lusine-circle.png';
     appleIconEl.href = 'lusine-circle.png';
     appleIcon180El.href = 'lusine-circle.png';
+
   } else if (currentFamily === 'david_anna') {
     nameEl.textContent = 'David & Anna';
     subtitleEl.textContent = 'Семейный список задач';
     contactEl.innerHTML = `<div>📍 David & Anna</div>`;
+
     photoEl.src = 'david-circle.PNG';
     pageTitleEl.textContent = 'David & Anna — Нужды';
     faviconEl.href = 'david-circle.PNG';
     faviconShortcutEl.href = 'david-circle.PNG';
     appleIconEl.href = 'david-circle.PNG';
     appleIcon180El.href = 'david-circle.PNG';
+
   } else if (currentFamily === 'andranik_katya') {
     nameEl.textContent = 'Andranik & Katya';
     subtitleEl.textContent = 'Семейный список задач';
     contactEl.innerHTML = `<div>📍 Andranik & Katya</div>`;
+
     photoEl.src = 'andranik-circle.png';
     pageTitleEl.textContent = 'Andranik & Katya — Нужды';
     faviconEl.href = 'andranik-circle.png';
@@ -837,6 +1021,7 @@ familyTabs.forEach(ftab => {
   ftab.addEventListener('click', () => {
     familyTabs.forEach(t => t.classList.remove('active'));
     ftab.classList.add('active');
+
     currentFamily = ftab.dataset.family;
     updateHeaderView();
     renderList();
@@ -845,8 +1030,12 @@ familyTabs.forEach(ftab => {
 
 function getSortedItems(cat) {
   const items = ensureCategoryArray(currentFamily, cat);
+
   return [...items].sort((a, b) => {
-    if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+    if (!!a.done !== !!b.done) {
+      return a.done ? 1 : -1;
+    }
+
     return (b.createdAt || 0) - (a.createdAt || 0);
   });
 }
@@ -867,7 +1056,8 @@ function renderList() {
   const items = getSortedItems(currentCat);
 
   if (items.length === 0) {
-    listEl.innerHTML = '<div class="empty">Пока нет пунктов<br>Нажмите + чтобы добавить</div>';
+    listEl.innerHTML =
+      '<div class="empty">Пока нет пунктов<br>Нажмите + чтобы добавить</div>';
     return;
   }
 
@@ -876,7 +1066,10 @@ function renderList() {
     el.className = 'item' + (item.done ? ' done' : '');
 
     let iconHtml = item.icon || '📌';
-    if (item.photo) iconHtml = `<img src="${item.photo}" alt="">`;
+
+    if (item.photo) {
+      iconHtml = `<img src="${item.photo}" alt="">`;
+    }
 
     const doneButton = item.done
       ? `<button class="action-btn undone-btn" title="Вернуть">↩</button>`
@@ -886,7 +1079,12 @@ function renderList() {
       <div class="item-icon">${iconHtml}</div>
       <div class="item-text">
         <div class="item-title">${item.title}</div>
-        <div class="item-creator">${item.creator ? 'Добавил: ' + item.creator : ''}${item.done && item.completedBy ? '<br>Выполнил: ' + item.completedBy : ''}</div>
+        <div class="item-creator">
+          ${item.creator ? 'Добавил: ' + item.creator : ''}
+          ${item.done && item.completedBy
+            ? '<br>Выполнил: ' + item.completedBy
+            : ''}
+        </div>
       </div>
       <div class="item-actions">
         ${doneButton}
@@ -901,15 +1099,30 @@ function renderList() {
     });
 
     const toggleBtn = el.querySelector('.done-btn, .undone-btn');
+
     if (toggleBtn) {
       toggleBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
+
         if (!item.done) {
-          window.completeItem = { family: currentFamily, cat: currentCat, item };
-          document.getElementById('completeOverlay').classList.add('open');
+          window.completeItem = {
+            family: currentFamily,
+            cat: currentCat,
+            item
+          };
+
+          document.getElementById('completeOverlay')
+            .classList.add('open');
+
         } else {
-          window.restoreItem = { family: currentFamily, cat: currentCat, item };
-          document.getElementById('restoreOverlay').classList.add('open');
+          window.restoreItem = {
+            family: currentFamily,
+            cat: currentCat,
+            item
+          };
+
+          document.getElementById('restoreOverlay')
+            .classList.add('open');
         }
       });
     }
@@ -921,8 +1134,17 @@ function renderList() {
 
     el.querySelector('.delete-btn').addEventListener('click', (e) => {
       e.stopPropagation();
-      itemToDelete = { family: currentFamily, cat: currentCat, id: item.id, title: item.title };
-      document.getElementById('deleteText').textContent = `Точно удалить «${item.title}»?`;
+
+      itemToDelete = {
+        family: currentFamily,
+        cat: currentCat,
+        id: item.id,
+        title: item.title
+      };
+
+      document.getElementById('deleteText').textContent =
+        `Точно удалить «${item.title}»?`;
+
       document.getElementById('deleteOverlay').classList.add('open');
     });
 
@@ -932,6 +1154,7 @@ function renderList() {
 
 document.getElementById('completeCancel').onclick = () => {
   if (isCompleting) return;
+
   document.getElementById('completeOverlay').classList.remove('open');
   window.completeItem = null;
 };
@@ -952,6 +1175,7 @@ document.getElementById('completeConfirm').onclick = async () => {
 
   const person = document.getElementById('completePerson').value;
   const item = targetData.item;
+
   item.done = true;
   item.completedBy = person;
   item.completedAt = Date.now();
@@ -962,19 +1186,26 @@ document.getElementById('completeConfirm').onclick = async () => {
     // Для Andranik & Katya уведомления по e-mail отключены.
     if (targetData.family === 'andranik_katya') {
       showStatus('Задание выполнено');
+
     } else {
       const emailConfig = EMAILJS_CONFIG[targetData.family];
       emailjs.init(emailConfig.publicKey);
 
       try {
-        await emailjs.send(emailConfig.serviceId, emailConfig.doneTemplate, {
-          to_email: 'shapalax@gmail.com',
-          title: item.title,
-          detail: item.detail || '—',
-          completed_by: person,
-          date: new Date().toLocaleString('ru-RU')
-        });
+        await emailjs.send(
+          emailConfig.serviceId,
+          emailConfig.doneTemplate,
+          {
+            to_email: 'shapalax@gmail.com',
+            title: item.title,
+            detail: item.detail || '—',
+            completed_by: person,
+            date: new Date().toLocaleString('ru-RU')
+          }
+        );
+
         showStatus('Выполнено + письмо отправлено');
+
       } catch(e) {
         console.error(e);
         showStatus('Выполнено (письмо не ушло)');
@@ -983,9 +1214,11 @@ document.getElementById('completeConfirm').onclick = async () => {
 
     document.getElementById('completeOverlay').classList.remove('open');
     renderList();
+
   } catch (err) {
     console.error(err);
     showStatus('Ошибка при выполнении');
+
   } finally {
     isCompleting = false;
     confirmBtn.disabled = false;
@@ -997,6 +1230,7 @@ document.getElementById('completeConfirm').onclick = async () => {
 
 document.getElementById('restoreCancel').onclick = () => {
   if (isRestoring) return;
+
   document.getElementById('restoreOverlay').classList.remove('open');
   window.restoreItem = null;
 };
@@ -1021,12 +1255,15 @@ document.getElementById('restoreConfirm').onclick = async () => {
 
   try {
     await saveFamilyData(targetData.family);
+
     document.getElementById('restoreOverlay').classList.remove('open');
     renderList();
     showStatus('Задание снова активно');
+
   } catch (err) {
     console.error(err);
     showStatus('Ошибка при возврате');
+
   } finally {
     isRestoring = false;
     confirmBtn.disabled = false;
@@ -1040,6 +1277,7 @@ tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
+
     currentCat = tab.dataset.cat;
     renderList();
   });
@@ -1047,14 +1285,20 @@ tabs.forEach(tab => {
 
 function openView(item) {
   const iconEl = document.getElementById('viewIcon');
+
   if (item.photo) {
     iconEl.innerHTML = `<img src="${item.photo}" alt="">`;
   } else {
     iconEl.textContent = item.icon || '📌';
   }
+
   document.getElementById('viewTitle').textContent = item.title;
-  document.getElementById('viewBody').textContent = item.detail || 'Нет дополнительной информации';
-  document.getElementById('viewCreator').textContent = item.creator ? `Добавил: ${item.creator}` : '';
+  document.getElementById('viewBody').textContent =
+    item.detail || 'Нет дополнительной информации';
+
+  document.getElementById('viewCreator').textContent =
+    item.creator ? `Добавил: ${item.creator}` : '';
+
   document.getElementById('viewOverlay').classList.add('open');
 }
 
@@ -1062,24 +1306,30 @@ document.getElementById('viewClose').onclick = () => {
   document.getElementById('viewOverlay').classList.remove('open');
 };
 
-document.getElementById('photoSelectBtn').onclick = () => photoInput.click();
+document.getElementById('photoSelectBtn').onclick = () => {
+  photoInput.click();
+};
 
 photoInput.onchange = (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
+
   reader.onload = (ev) => {
     const img = new Image();
+
     img.onload = () => {
       const canvas = document.createElement('canvas');
       const MAX = 600;
+
       let w = img.width;
       let h = img.height;
 
       if (w > h && w > MAX) {
         h = Math.round(h * MAX / w);
         w = MAX;
+
       } else if (h > MAX) {
         w = Math.round(w * MAX / h);
         h = MAX;
@@ -1087,15 +1337,19 @@ photoInput.onchange = (e) => {
 
       canvas.width = w;
       canvas.height = h;
+
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
+
       currentPhoto = canvas.toDataURL('image/jpeg', 0.7);
       photoPreview.src = currentPhoto;
       photoPreview.classList.add('show');
       photoRemoveBtn.classList.add('show');
     };
+
     img.src = ev.target.result;
   };
+
   reader.readAsDataURL(file);
 };
 
@@ -1117,22 +1371,35 @@ function resetPhotoUI() {
 
 document.getElementById('addBtn').onclick = () => {
   editingItem = null;
-  document.getElementById('editModalTitle').textContent = 'Новая потребность';
+
+  document.getElementById('editModalTitle').textContent =
+    'Новая потребность';
+
   document.getElementById('editFamily').value = currentFamily;
   document.getElementById('editCreator').value = '';
   document.getElementById('editCategory').value = '';
   document.getElementById('editTitle').value = '';
   document.getElementById('editIcon').value = '';
   document.getElementById('editDetail').value = '';
+
   resetPhotoUI();
+
   saveBtn.disabled = false;
   saveBtn.textContent = 'Сохранить';
+
   document.getElementById('editOverlay').classList.add('open');
 };
 
 function openEdit(item, cat, family) {
-  editingItem = { family, cat, id: item.id };
-  document.getElementById('editModalTitle').textContent = 'Редактировать';
+  editingItem = {
+    family,
+    cat,
+    id: item.id
+  };
+
+  document.getElementById('editModalTitle').textContent =
+    'Редактировать';
+
   document.getElementById('editFamily').value = family;
   document.getElementById('editCreator').value = item.creator || '';
   document.getElementById('editCategory').value = cat;
@@ -1145,20 +1412,24 @@ function openEdit(item, cat, family) {
     photoPreview.src = item.photo;
     photoPreview.classList.add('show');
     photoRemoveBtn.classList.add('show');
+
   } else {
     resetPhotoUI();
   }
 
   saveBtn.disabled = false;
   saveBtn.textContent = 'Сохранить';
+
   document.getElementById('editOverlay').classList.add('open');
 }
 
 document.getElementById('editClose').onclick = () => {
   document.getElementById('editOverlay').classList.remove('open');
+
   editingItem = null;
   resetPhotoUI();
   isSaving = false;
+
   saveBtn.disabled = false;
   saveBtn.textContent = 'Сохранить';
 };
@@ -1176,16 +1447,19 @@ document.getElementById('editSave').onclick = async () => {
     showStatus('Укажите семью');
     return;
   }
+
   if (!creator) {
     document.getElementById('editCreator').focus();
     showStatus('Укажите, кто добавляет');
     return;
   }
+
   if (!cat) {
     document.getElementById('editCategory').focus();
     showStatus('Выберите категорию');
     return;
   }
+
   if (!title) {
     document.getElementById('editTitle').focus();
     showStatus('Введите название');
@@ -1205,7 +1479,9 @@ document.getElementById('editSave').onclick = async () => {
     done: false
   };
 
-  if (currentPhoto) itemData.photo = currentPhoto;
+  if (currentPhoto) {
+    itemData.photo = currentPhoto;
+  }
 
   try {
     ensureCategoryArray(family, cat);
@@ -1218,7 +1494,8 @@ document.getElementById('editSave').onclick = async () => {
       const oldList = ensureCategoryArray(oldFamily, oldCat);
       const oldItem = oldList.find(i => i.id === id);
 
-      familiesData[oldFamily][oldCat] = oldList.filter(i => i.id !== id);
+      familiesData[oldFamily][oldCat] =
+        oldList.filter(i => i.id !== id);
 
       if (oldFamily !== family) {
         await saveFamilyData(oldFamily);
@@ -1229,10 +1506,15 @@ document.getElementById('editSave').onclick = async () => {
       itemData.createdAt = oldItem ? oldItem.createdAt : Date.now();
 
       ensureCategoryArray(family, cat).push(itemData);
+
       await saveFamilyData(family);
       showStatus('Изменено');
+
     } else {
-      itemData.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      itemData.id =
+        Date.now().toString(36) +
+        Math.random().toString(36).slice(2, 6);
+
       ensureCategoryArray(family, cat).push(itemData);
 
       await saveFamilyData(family);
@@ -1240,26 +1522,33 @@ document.getElementById('editSave').onclick = async () => {
       // Для Andranik & Katya уведомления по e-mail отключены.
       if (family === 'andranik_katya') {
         showStatus('Добавлено');
+
       } else {
         const emailConfig = EMAILJS_CONFIG[family];
         emailjs.init(emailConfig.publicKey);
 
         try {
-          await emailjs.send(emailConfig.serviceId, emailConfig.newTemplate, {
-            to_email: 'shapalax@gmail.com',
-            creator: creator,
-            title: itemData.title,
-            category: {
-              home: 'Дом',
-              docs: 'Документы',
-              car: 'Машина',
-              health: 'Здоровье',
-              work: 'Работа'
-            }[cat],
-            detail: itemData.detail || '—',
-            date: new Date().toLocaleString('ru-RU')
-          });
+          await emailjs.send(
+            emailConfig.serviceId,
+            emailConfig.newTemplate,
+            {
+              to_email: 'shapalax@gmail.com',
+              creator: creator,
+              title: itemData.title,
+              category: {
+                home: 'Дом',
+                docs: 'Документы',
+                car: 'Машина',
+                health: 'Здоровье',
+                work: 'Работа'
+              }[cat],
+              detail: itemData.detail || '—',
+              date: new Date().toLocaleString('ru-RU')
+            }
+          );
+
           showStatus('Добавлено + письмо отправлено');
+
         } catch (err) {
           console.error(err);
           showStatus('Добавлено (письмо не ушло)');
@@ -1268,19 +1557,35 @@ document.getElementById('editSave').onclick = async () => {
     }
 
     currentFamily = family;
-    familyTabs.forEach(t => t.classList.toggle('active', t.dataset.family === family));
+
+    familyTabs.forEach(t => {
+      t.classList.toggle(
+        'active',
+        t.dataset.family === family
+      );
+    });
+
     updateHeaderView();
 
-    tabs.forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+    tabs.forEach(t => {
+      t.classList.toggle(
+        'active',
+        t.dataset.cat === cat
+      );
+    });
+
     currentCat = cat;
     renderList();
 
     document.getElementById('editOverlay').classList.remove('open');
+
     editingItem = null;
     resetPhotoUI();
+
   } catch (err) {
     console.error(err);
     showStatus('Ошибка сохранения');
+
   } finally {
     isSaving = false;
     saveBtn.disabled = false;
@@ -1297,13 +1602,18 @@ document.getElementById('deleteConfirm').onclick = async () => {
   if (!itemToDelete) return;
 
   const { family, cat, id } = itemToDelete;
+
   const currentList = ensureCategoryArray(family, cat);
-  familiesData[family][cat] = currentList.filter(i => i.id !== id);
+
+  familiesData[family][cat] =
+    currentList.filter(i => i.id !== id);
 
   await saveFamilyData(family);
 
   renderList();
+
   document.getElementById('deleteOverlay').classList.remove('open');
+
   itemToDelete = null;
   showStatus('Удалено');
 };
@@ -1312,9 +1622,11 @@ document.querySelectorAll('.overlay').forEach(ov => {
   ov.addEventListener('click', e => {
     if (e.target === ov) {
       if (isCompleting || isRestoring || isSaving) return;
+
       ov.classList.remove('open');
       editingItem = null;
       resetPhotoUI();
+
       isSaving = false;
       saveBtn.disabled = false;
       saveBtn.textContent = 'Сохранить';
@@ -1324,5 +1636,6 @@ document.querySelectorAll('.overlay').forEach(ov => {
 
 updateHeaderView();
 </script>
+
 </body>
 </html>
