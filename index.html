@@ -1,13 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<!-- Favicon -->
 <link rel="icon" type="image/png" id="favicon" href="lusine-circle.png">
 <link rel="shortcut icon" type="image/png" id="favicon-shortcut" href="lusine-circle.png">
-<!-- Иконка для iPhone (домашний экран) -->
 <link rel="apple-touch-icon" id="apple-icon" href="lusine-circle.png">
 <link rel="apple-touch-icon" sizes="180x180" id="apple-icon-180" href="lusine-circle.png">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -29,10 +27,15 @@
   --radius: 20px;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
 html, body {
-  height: 100%;
+  min-height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
@@ -46,41 +49,48 @@ body {
   background: linear-gradient(180deg, #fdf8f4 0%, #f5ebe4 100%);
 }
 
+/* Верхняя панель — исправлено для Safari */
 .family-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px 16px 0;
+  padding: 28px 16px 0;
 }
 
 .family-switcher {
   display: flex;
   flex: 1;
   gap: 6px;
+  min-width: 0;
 }
 
 .family-tab {
   flex: 1;
+  min-width: 0;
   padding: 12px 6px;
   border-radius: 14px;
-  background: rgba(255,255,255,0.75);
+  background: #ffffff;
   border: 1.5px solid #e5d8d0;
   font-size: 11px;
   font-weight: 700;
   color: var(--muted);
   cursor: pointer;
   text-align: center;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  -webkit-appearance: none;
+  appearance: none;
+  opacity: 1;
+  filter: none;
 }
 
 .family-tab.active {
   background: var(--accent);
-  color: white;
+  color: #ffffff;
   border-color: var(--accent);
-  box-shadow: 0 4px 15px rgba(224, 122, 95, 0.35);
+  box-shadow: 0 3px 10px rgba(224, 122, 95, 0.25);
 }
 
 .add-btn-inline {
@@ -89,30 +99,27 @@ body {
   flex-shrink: 0;
   border-radius: 14px;
   border: none;
-  background: linear-gradient(135deg, #e07a5f, #f2cc8f, #e07a5f);
-  background-size: 200% 200%;
-  color: white;
+  background: linear-gradient(135deg, #e07a5f, #f2cc8f);
+  color: #ffffff;
   font-size: 26px;
   font-weight: 400;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(224, 122, 95, 0.4);
-  animation: gradientShift 4s ease infinite;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  box-shadow: 0 3px 10px rgba(224, 122, 95, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
   line-height: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  opacity: 1;
+  filter: none;
+  animation: none;
 }
 
 .add-btn-inline:active {
-  transform: scale(0.9) rotate(90deg);
-  box-shadow: 0 2px 8px rgba(224, 122, 95, 0.2);
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  transform: scale(0.95);
+  box-shadow: 0 2px 6px rgba(224, 122, 95, 0.2);
 }
 
 .header {
@@ -175,6 +182,7 @@ body {
   overflow-x: auto;
   scrollbar-width: none;
 }
+
 .tabs::-webkit-scrollbar { display: none; }
 
 .tab {
@@ -309,12 +317,10 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   z-index: 100;
   opacity: 0;
   visibility: hidden;
-  transition: 0.25s;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -334,7 +340,8 @@ body {
   max-height: 90vh;
   overflow-y: auto;
   transform: translateY(40px);
-  transition: 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  -webkit-overflow-scrolling: touch;
 }
 
 .overlay.open .modal { transform: translateY(0); }
@@ -455,17 +462,31 @@ body {
   border-radius: 30px;
   font-size: 14px;
   opacity: 0;
-  transition: 0.3s;
+  transition: opacity 0.3s ease;
   z-index: 200;
   pointer-events: none;
 }
 
 .status.show { opacity: 1; }
 
+/* Безопасные отступы iPhone */
 @supports (padding: max(0px)) {
-  .family-bar { padding-top: max(16px, env(safe-area-inset-top) + 12px); }
-  .list { padding-bottom: max(40px, env(safe-area-inset-bottom) + 24px); }
-  .overlay { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .list {
+    padding-bottom: max(40px, env(safe-area-inset-bottom) + 24px);
+  }
+
+  .overlay {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Дополнительная чёткость кнопок в Safari */
+.family-tab,
+.add-btn-inline {
+  -webkit-filter: none;
+  filter: none;
+  text-shadow: none;
+  -webkit-font-smoothing: antialiased;
 }
 </style>
 </head>
@@ -510,7 +531,6 @@ body {
   </div>
 </div>
 
-<!-- Просмотр -->
 <div class="overlay" id="viewOverlay">
   <div class="modal">
     <div class="modal-icon" id="viewIcon"></div>
@@ -521,7 +541,6 @@ body {
   </div>
 </div>
 
-<!-- Добавление / Редактирование -->
 <div class="overlay" id="editOverlay">
   <div class="modal">
     <div class="modal-title" id="editModalTitle">Новая потребность</div>
@@ -590,7 +609,6 @@ body {
   </div>
 </div>
 
-<!-- Удаление -->
 <div class="overlay" id="deleteOverlay">
   <div class="modal">
     <div class="modal-title">Удалить?</div>
@@ -602,7 +620,6 @@ body {
   </div>
 </div>
 
-<!-- Выполнение задания -->
 <div class="overlay" id="completeOverlay">
   <div class="modal">
     <div class="modal-title">Кто выполнил задание?</div>
@@ -621,7 +638,6 @@ body {
   </div>
 </div>
 
-<!-- Возврат задания -->
 <div class="overlay" id="restoreOverlay">
   <div class="modal">
     <div class="modal-title">Вернуть задание?</div>
@@ -718,9 +734,7 @@ function categoryToObject(arr) {
   const obj = {};
   if (Array.isArray(arr)) {
     arr.forEach(item => {
-      if (item && item.id) {
-        obj[item.id] = item;
-      }
+      if (item && item.id) obj[item.id] = item;
     });
   }
   return obj;
@@ -862,9 +876,7 @@ function renderList() {
     el.className = 'item' + (item.done ? ' done' : '');
 
     let iconHtml = item.icon || '📌';
-    if (item.photo) {
-      iconHtml = `<img src="${item.photo}" alt="">`;
-    }
+    if (item.photo) iconHtml = `<img src="${item.photo}" alt="">`;
 
     const doneButton = item.done
       ? `<button class="action-btn undone-btn" title="Вернуть">↩</button>`
@@ -1193,9 +1205,7 @@ document.getElementById('editSave').onclick = async () => {
     done: false
   };
 
-  if (currentPhoto) {
-    itemData.photo = currentPhoto;
-  }
+  if (currentPhoto) itemData.photo = currentPhoto;
 
   try {
     ensureCategoryArray(family, cat);
